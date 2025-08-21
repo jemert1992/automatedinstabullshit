@@ -1,10 +1,8 @@
 import os
 import random
-import textwrap
 import time
-
 from flask import Blueprint, request, jsonify, current_app as app
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image
 import openai
 
 content_bp = Blueprint('content', __name__)
@@ -70,7 +68,7 @@ def generate_fact():
 
 @content_bp.route('/create-post', methods=['POST'])
 def create_post():
-    """Create an Instagram post with text overlay"""
+    """Create an Instagram post with background image and return text overlay data"""
     try:
         data = request.get_json()
         topic = data.get('topic', 'general')
@@ -92,21 +90,70 @@ def create_post():
         template_filename = random.choice(templates)
         template_path = os.path.join(app.static_folder, template_filename)
         
-        # Create output filename
+        # Create output filename for the background image only
         timestamp = int(time.time())
-        output_filename = f'instagram_post_{timestamp}.png'
+        output_filename = f'instagram_bg_{timestamp}.png'
         output_path = os.path.join(app.static_folder, output_filename)
         
-        # Create the Instagram post
-        create_instagram_post(template_path, fact, brand_name, output_path, text_size, text_x, text_y, brand_size)
+        # Create the background image without text
+        create_background_image(template_path, output_path)
         
-        # Return the URL to the generated image
-        image_url = f'/{output_filename}'
+        # Return the background image URL and text overlay data for frontend
+        background_url = f'/{output_filename}'
+        
+        # Prepare text overlay data for HTML rendering
+        text_overlays = {
+            'viral_tag': {
+                'text': 'VIRAL',
+                'position': {'x': 40, 'y': 40},
+                'style': {
+                    'fontSize': '20px',
+                    'fontWeight': 'bold',
+                    'color': 'white',
+                    'textShadow': '2px 2px 4px rgba(0,0,0,0.8)',
+                    'position': 'absolute',
+                    'zIndex': 10
+                }
+            },
+            'brand_name': {
+                'text': brand_name.upper(),
+                'position': {'x': f'calc(100% - {len(brand_name) * brand_size/2 + 40}px)', 'y': 40},
+                'style': {
+                    'fontSize': f'{brand_size}px',
+                    'fontWeight': 'bold', 
+                    'color': 'white',
+                    'textShadow': '2px 2px 4px rgba(0,0,0,0.8)',
+                    'position': 'absolute',
+                    'right': '40px',
+                    'zIndex': 10
+                }
+            },
+            'main_fact': {
+                'text': fact.upper(),
+                'position': {'x': f'{text_x}%', 'y': f'{text_y}%'},
+                'style': {
+                    'fontSize': f'{text_size}px',
+                    'fontWeight': 'bold',
+                    'color': 'white',
+                    'textShadow': '4px 4px 8px rgba(0,0,0,0.8)',
+                    'position': 'absolute',
+                    'left': f'{text_x}%',
+                    'top': f'{text_y}%',
+                    'transform': 'translate(-50%, -50%)',
+                    'textAlign': 'center',
+                    'maxWidth': '80%',
+                    'lineHeight': '1.2',
+                    'zIndex': 10,
+                    'wordWrap': 'break-word'
+                }
+            }
+        }
         
         return jsonify({
             'success': True,
-            'image_path': image_url,
-            'image_url': image_url
+            'background_image': background_url,
+            'text_overlays': text_overlays,
+            'image_dimensions': {'width': 1080, 'height': 1080}
         })
         
     except Exception as e:
@@ -115,84 +162,14 @@ def create_post():
             'error': str(e)
         }), 500
 
-def create_instagram_post(background_path, fact_text, brand_name, output_path, text_size=64, text_x=50, text_y=75, brand_size=24):
-    """Create an Instagram post with text overlay on background image"""
+def create_background_image(background_path, output_path):
+    """Create a background image without text overlay"""
     
-    # Open the background image
+    # Open and resize the background image
     img = Image.open(background_path)
     img = img.resize((1080, 1080), Image.Resampling.LANCZOS)
     
-    # Create a drawing context
-    draw = ImageDraw.Draw(img)
-    
-    # Try to load bold fonts, fallback to default if not available
-    try:
-        # Use dynamic font sizes based on parameters
-        title_font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", text_size)
-        brand_font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", brand_size)
-        viral_font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 20)
-    except:
-        # Fallback to default font
-        title_font = ImageFont.load_default()
-        brand_font = ImageFont.load_default()
-        viral_font = ImageFont.load_default()
-    
-    # Text styling
-    text_color = (255, 255, 255)  # White text
-    shadow_color = (0, 0, 0, 200)  # Strong black shadow
-    
-    # Convert text to uppercase for impact
-    fact_text = fact_text.upper()
-    brand_name = brand_name.upper()
-    
-    # Calculate text positioning
-    img_width, img_height = img.size
-    
-    # Add "VIRAL" tag at top left corner
-    viral_text = "VIRAL"
-    viral_x = 40
-    viral_y = 40
-    
-    # Draw VIRAL tag with shadow
-    draw.text((viral_x+2, viral_y+2), viral_text, font=viral_font, fill=shadow_color)
-    draw.text((viral_x, viral_y), viral_text, font=viral_font, fill=text_color)
-    
-    # Add brand name at top right corner
-    brand_bbox = draw.textbbox((0, 0), brand_name, font=brand_font)
-    brand_width = brand_bbox[2] - brand_bbox[0]
-    brand_x = img_width - brand_width - 40
-    brand_y = 40
-    
-    # Draw brand name with shadow
-    draw.text((brand_x+2, brand_y+2), brand_name, font=brand_font, fill=shadow_color)
-    draw.text((brand_x, brand_y), brand_name, font=brand_font, fill=text_color)
-    
-    # Wrap the main text more compactly
-    wrapped_text = textwrap.fill(fact_text, width=16)  # Shorter lines for bottom placement
-    
-    # Position the main fact text based on user parameters
-    lines = wrapped_text.split('\n')
-    line_height = text_size + 10  # Dynamic line height based on font size
-    total_text_height = len(lines) * line_height
-    
-    # Calculate position based on percentage parameters
-    start_x = (img_width * text_x) // 100
-    start_y = (img_height * text_y) // 100 - (total_text_height // 2)
-    
-    # Draw each line of the fact with stronger shadow
-    for i, line in enumerate(lines):
-        # Get text bounding box for centering
-        bbox = draw.textbbox((0, 0), line, font=title_font)
-        text_width = bbox[2] - bbox[0]
-        x = start_x - (text_width // 2)  # Center horizontally around the X position
-        y = start_y + (i * line_height)
-        
-        # Add stronger text shadow for better readability
-        shadow_offset = 4
-        draw.text((x+shadow_offset, y+shadow_offset), line, font=title_font, fill=shadow_color)
-        draw.text((x, y), line, font=title_font, fill=text_color)
-    
-    # Save the final image
+    # Save the background image without any text
     img.save(output_path, 'PNG', quality=95)
 
 @content_bp.route('/topics', methods=['GET'])
@@ -202,4 +179,3 @@ def get_topics():
         'success': True,
         'topics': list(TEMPLATES.keys())
     })
-
