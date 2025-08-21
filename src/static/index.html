@@ -446,18 +446,20 @@
                 });
                 
                 const data = await response.json();
-                
-                if (data.success) {
-                    currentImagePath = data.image_path;
-                    const previewImage = document.getElementById('previewImage');
-                    const placeholder = document.querySelector('.preview-placeholder');
-                    
-                    previewImage.src = data.image_path + '?t=' + new Date().getTime();
-                    previewImage.style.display = 'block';
-                    placeholder.style.display = 'none';
-                    
-                    document.getElementById('downloadBtn').style.display = 'block';
-                    showAlert('Instagram post created successfully!');
+             if (data.success) {
+    // No need for currentImagePath any more
+    const previewImage = document.getElementById('previewImage');
+    const placeholder = document.querySelector('.preview-placeholder');
+    
+    // Set image source to base64 data directly
+    previewImage.src = data.background_image_base64;
+    previewImage.style.display = 'block';
+    placeholder.style.display = 'none';
+    
+    document.getElementById('downloadBtn').style.display = 'block';
+    showAlert('Instagram post created successfully!');
+}
+
                 } else {
                     showAlert('Error creating post: ' + data.error, 'error');
                 }
