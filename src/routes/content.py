@@ -1,7 +1,9 @@
 import os
 import random
 import time
-from flask import Blueprint, request, jsonify, current_app as app, send_file
+import base64
+import io
+from flask import Blueprint, request, jsonify, current_app as app
 from PIL import Image
 import openai
 
@@ -23,11 +25,6 @@ TEMPLATES = {
         'general_template_2.png'
     ]
 }
-
-# Ensure /tmp directory exists for Render.com compatibility
-TMP_DIR = '/tmp'
-if not os.path.exists(TMP_DIR):
-    os.makedirs(TMP_DIR)
 
 @content_bp.route('/generate-fact', methods=['POST'])
 def generate_fact():
@@ -73,7 +70,7 @@ def generate_fact():
 
 @content_bp.route('/create-post', methods=['POST'])
 def create_post():
-    """Create an Instagram post with background image and return text overlay data"""
+    """Create an Instagram post with background image and return base64-encoded PNG"""
     try:
         data = request.get_json()
         topic = data.get('topic', 'general')
@@ -95,16 +92,8 @@ def create_post():
         template_filename = random.choice(templates)
         template_path = os.path.join(app.static_folder, template_filename)
         
-        # Create output filename for the background image - save to /tmp for Render.com
-        timestamp = int(time.time())
-        output_filename = f'instagram_bg_{timestamp}.png'
-        output_path = os.path.join(TMP_DIR, output_filename)
-        
-        # Create the background image without text
-        create_background_image(template_path, output_path)
-        
-        # Return the dynamic image URL for the new route
-        background_url = f'/api/get-image/{output_filename}'
+        # Create the background image and return as base64
+        base64_image = create_background_image_base64(template_path)
         
         # Prepare text overlay data for HTML rendering
         text_overlays = {
@@ -156,7 +145,7 @@ def create_post():
         
         return jsonify({
             'success': True,
-            'background_image': background_url,
+            'background_image_base64': base64_image,
             'text_overlays': text_overlays,
             'image_dimensions': {'width': 1080, 'height': 1080}
         })
@@ -167,35 +156,19 @@ def create_post():
             'error': str(e)
         }), 500
 
-@content_bp.route('/api/get-image/<filename>', methods=['GET'])
-def get_image(filename):
-    """Serve images from /tmp directory for Render.com compatibility"""
-    try:
-        # Validate filename to prevent directory traversal
-        if not filename or '..' in filename or '/' in filename:
-            return jsonify({'error': 'Invalid filename'}), 400
-            
-        file_path = os.path.join(TMP_DIR, filename)
-        
-        # Check if file exists
-        if not os.path.exists(file_path):
-            return jsonify({'error': 'File not found'}), 404
-            
-        # Serve the file
-        return send_file(file_path, mimetype='image/png')
-        
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-
-def create_background_image(background_path, output_path):
-    """Create a background image without text overlay"""
+def create_background_image_base64(background_path):
+    """Create a background image and return it as base64-encoded string"""
     
     # Open and resize the background image
     img = Image.open(background_path)
     img = img.resize((1080, 1080), Image.Resampling.LANCZOS)
     
-    # Save the background image without any text to /tmp directory
-    img.save(output_path, 'PNG', quality=95)
+    # Convert image to base64
+    buffered = io.BytesIO()
+    img.save(buffered, format="PNG", quality=95)
+    img_str = base64.b64encode(buffered.getvalue()).decode()
+    
+    return f"data:image/png;base64,{img_str}"
 
 @content_bp.route('/topics', methods=['GET'])
 def get_topics():
