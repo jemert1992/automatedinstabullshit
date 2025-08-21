@@ -92,7 +92,7 @@ def create_post():
         template_filename = random.choice(templates)
         template_path = os.path.join(app.static_folder, template_filename)
         
-        # Create the background image and return as base64
+        # Create the background image and return as base64 (avoids disk storage for Render deployment)
         base64_image = create_background_image_base64(template_path)
         
         # Prepare text overlay data for HTML rendering
@@ -143,9 +143,10 @@ def create_post():
             }
         }
         
+        # Return response with base64-encoded image (key: background_image_base64)
         return jsonify({
             'success': True,
-            'background_image_base64': base64_image,
+            'background_image_base64': base64_image,  # Base64 PNG data for Render compatibility
             'text_overlays': text_overlays,
             'image_dimensions': {'width': 1080, 'height': 1080}
         })
@@ -163,7 +164,7 @@ def create_background_image_base64(background_path):
     img = Image.open(background_path)
     img = img.resize((1080, 1080), Image.Resampling.LANCZOS)
     
-    # Convert image to base64
+    # Convert image to base64 using bytes buffer (no disk storage needed)
     buffered = io.BytesIO()
     img.save(buffered, format="PNG", quality=95)
     img_str = base64.b64encode(buffered.getvalue()).decode()
