@@ -388,32 +388,28 @@
         }
 
         async function generateFact() {
-            const topic = document.getElementById('topic').value;
-            
-            try {
-                const response = await fetch('/api/generate-fact', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ topic: topic })
-                });
-                
-                const data = await response.json();
-                
-                if (data.success) {
-                    currentFact = data.fact;
-                    const factDisplay = document.getElementById('factDisplay');
-                    factDisplay.textContent = data.fact;
-                    factDisplay.style.display = 'block';
-                    showAlert('Fact generated successfully!');
-                } else {
-                    showAlert('Error generating fact: ' + data.error, 'error');
-                }
-            } catch (error) {
-                showAlert('Network error: ' + error.message, 'error');
-            }
+    const selectedTopic = document.getElementById('topic').value; // Adjust selector as needed
+    fetch('/api/generate-fact', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ topic: selectedTopic })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Update your fact display (adjust selector as needed)
+            document.getElementById('factInput').value = data.fact;
+        } else {
+            alert('Error generating fact: ' + data.error);
         }
+    })
+    .catch(error => {
+        alert('Network error: ' + error);
+    });
+}
+
 
         async function createPost() {
             if (!currentFact) {
