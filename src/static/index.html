@@ -388,25 +388,24 @@
         }
 
         async function generateFact() {
-    const selectedTopic = document.getElementById('topic').value; // Adjust selector as needed
+    const selectedTopic = document.getElementById('topic').value;
     fetch('/api/generate-fact', {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ topic: selectedTopic })
     })
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            // Update your fact display (adjust selector as needed)
-            document.getElementById('factInput').value = data.fact;
+            document.getElementById('factDisplay').textContent = data.fact;
+            document.getElementById('factDisplay').style.display = 'block';
+            currentFact = data.fact;
         } else {
-            alert('Error generating fact: ' + data.error);
+            showAlert('Error generating fact: ' + data.error, 'error');
         }
     })
     .catch(error => {
-        alert('Network error: ' + error);
+        showAlert('Network error: ' + error, 'error');
     });
 }
 
