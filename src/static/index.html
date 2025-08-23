@@ -474,5 +474,27 @@
             }
         }
     </script>
+<script>
+window.generateFact = async function generateFact() {
+    // Example fetch call (customize as needed for your API)
+    const topic = document.getElementById('topicDropdown')?.value || 'general';
+    try {
+        const response = await fetch('/api/generate-fact', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ topic })
+        });
+        const data = await response.json();
+        if (data.success) {
+            document.getElementById('previewArea').innerText = data.fact;
+        } else {
+            alert('Error: ' + (data.error || 'Unknown error'));
+        }
+    } catch (err) {
+        alert('Request failed: ' + err);
+    }
+}
+</script>
+
 </body>
 </html>
