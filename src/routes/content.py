@@ -145,6 +145,45 @@ def generate_content():
             'message': 'Failed to generate content'
         }), 500
 
+@content_bp.route('/generate-fact', methods=['POST'])
+def generate_fact():
+    """Generate a random fact"""
+    try:
+        # List of interesting facts to choose from
+        facts = [
+            "Honey never spoils. Archaeologists have found edible honey in ancient Egyptian tombs.",
+            "A group of flamingos is called a 'flamboyance'.",
+            "Octopuses have three hearts and blue blood.",
+            "Bananas are berries, but strawberries aren't.",
+            "A shrimp's heart is in its head.",
+            "Wombat poop is cube-shaped.",
+            "The shortest war in history lasted only 38-45 minutes.",
+            "A cloud can weigh more than a million pounds.",
+            "Sharks have been around longer than trees.",
+            "There are more possible games of chess than atoms in the observable universe.",
+            "A day on Venus is longer than its year.",
+            "The human brain uses about 20% of the body's total energy.",
+            "Dolphins have names for each other.",
+            "The Great Wall of China isn't visible from space with the naked eye.",
+            "Cleopatra lived closer in time to the Moon landing than to the construction of the Great Pyramid."
+        ]
+        
+        import random
+        selected_fact = random.choice(facts)
+        
+        return jsonify({
+            'success': True,
+            'fact': selected_fact,
+            'message': 'Fact generated successfully'
+        }), 200
+    
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e),
+            'message': 'Failed to generate fact'
+        }), 500
+
 @content_bp.route('/health', methods=['GET'])
 def health_check():
     """Health check endpoint"""
