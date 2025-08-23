@@ -66,32 +66,35 @@ def create_insta_post_img(background_path, fact, brand_name, text_size=84, text_
     fact_font = ImageFont.truetype(font_path, text_size)
     brand_font = ImageFont.truetype(font_path, brand_size)
 
-    fact = fact.upper()
-    brand_name = brand_name.upper()
+    fact = str(fact).upper()
+    brand_name = str(brand_name).upper()
 
-    # FACT text
-    fact_bbox = draw.textbbox((0, 0), fact, font=fact_font)
-    fact_w = int(fact_bbox[2]) - int(fact_bbox)  # width
-    fact_h = int(fact_bbox[2]) - int(fact_bbox[3])  # height
+    # Compute size for FACT text
+    fact_bbox = draw.textbbox((0, 0), fact, font=fact_font)  # (left, upper, right, lower)
+    fact_w = fact_bbox[2] - fact_bbox  # Always int
+    fact_h = fact_bbox[3] - fact_bbox[4]  # Always int
     fx = int((1080 - fact_w) / 2)
-    # Y position: if input is %, convert; else treat as px
-    if isinstance(text_y, float) and text_y <= 1:  # e.g., 0.1 for 10%
-        fy = int(1080 * text_y)
-    elif isinstance(text_y, int) and text_y < 100:  # treat as percent if below 100
-        fy = int(1080 * (text_y / 100))
+    # Process y as percent or absolute
+    if isinstance(text_y, (float, int)):
+        if isinstance(text_y, float) and text_y <= 1:
+            fy = int(1080 * text_y)
+        elif isinstance(text_y, int) and text_y < 100:
+            fy = int(1080 * (text_y / 100))
+        else:
+            fy = int(text_y)
     else:
-        fy = int(text_y)
-    # Shadow
+        fy = 10
+
+    # Shadow and text
     draw.text((fx + 3, fy + 3), fact, font=fact_font, fill="black")
     draw.text((fx, fy), fact, font=fact_font, fill="white")
 
-    # BRAND text
+    # Compute size for BRAND text
     brand_bbox = draw.textbbox((0, 0), brand_name, font=brand_font)
-    brand_w = int(brand_bbox[2]) - int(brand_bbox)
-    brand_h = int(brand_bbox[2]) - int(brand_bbox[3])
+    brand_w = brand_bbox[2] - brand_bbox  # Always int
+    brand_h = brand_bbox[3] - brand_bbox[4]  # Always int
     bx = 1080 - brand_w - 40
     by = 1080 - brand_h - 40
-    # Shadow
     draw.text((bx + 2, by + 2), brand_name, font=brand_font, fill="black")
     draw.text((bx, by), brand_name, font=brand_font, fill="white")
 
@@ -99,6 +102,7 @@ def create_insta_post_img(background_path, fact, brand_name, text_size=84, text_
     img.save(buffer, format="PNG")
     img_str = base64.b64encode(buffer.getvalue()).decode()
     return f"data:image/png;base64,{img_str}"
+
 
 @content_bp.route('/create-post', methods=['POST'])
 def create_post():
