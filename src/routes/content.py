@@ -1,3 +1,12 @@
+import os
+import io
+import base64
+from flask import Blueprint
+from PIL import Image, ImageDraw, ImageFont
+
+# Create the blueprint for content routes
+content_bp = Blueprint('content', __name__)
+
 def wrap_text(text, font, draw, max_width):
     words = text.split()
     lines = []
