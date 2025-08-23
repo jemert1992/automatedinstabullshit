@@ -5,262 +5,44 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Instagram Content Generator</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        /* --- Your existing CSS, unchanged --- */
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            overflow: hidden;
-        }
-
-        .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            text-align: center;
-            padding: 30px;
-        }
-
-        .header h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-        }
-
-        .header p {
-            font-size: 1.1rem;
-            opacity: 0.9;
-        }
-
-        .main-content {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 40px;
-            padding: 40px;
-        }
-
-        .settings-panel {
-            display: flex;
-            flex-direction: column;
-            gap: 25px;
-        }
-
-        .settings-panel h2 {
-            color: #333;
-            font-size: 1.8rem;
-            margin-bottom: 10px;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .form-group label {
-            font-weight: 600;
-            color: #555;
-            font-size: 0.95rem;
-        }
-
-        .form-group select,
-        .form-group input {
-            padding: 12px 15px;
-            border: 2px solid #e1e5e9;
-            border-radius: 10px;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-        }
-
-        .form-group select:focus,
-        .form-group input:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-
-        .slider-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .slider-container {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .slider {
-            flex: 1;
-            height: 6px;
-            border-radius: 3px;
-            background: #e1e5e9;
-            outline: none;
-            -webkit-appearance: none;
-        }
-
-        .slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: #667eea;
-            cursor: pointer;
-        }
-
-        .slider::-moz-range-thumb {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: #667eea;
-            cursor: pointer;
-            border: none;
-        }
-
-        .slider-value {
-            min-width: 40px;
-            text-align: center;
-            font-weight: 600;
-            color: #667eea;
-        }
-
-        .button {
-            padding: 15px 25px;
-            border: none;
-            border-radius: 12px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-
-        .button-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-
-        .button-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
-        }
-
-        .button-secondary {
-            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
-            color: #333;
-        }
-
-        .button-secondary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(168, 237, 234, 0.3);
-        }
-
-        .button-success {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-            color: white;
-        }
-
-        .button-success:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(79, 172, 254, 0.3);
-        }
-
-        .preview-panel {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .preview-panel h2 {
-            color: #333;
-            font-size: 1.8rem;
-        }
-
-        .preview-container {
-            width: 100%;
-            max-width: 400px;
-            aspect-ratio: 1;
-            background: #f8f9fa;
-            border-radius: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 2px dashed #e1e5e9;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .preview-image {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 13px;
-        }
-
-        .preview-placeholder {
-            text-align: center;
-            color: #999;
-            font-size: 1.1rem;
-        }
-
-        .fact-display {
-            background: #e3f2fd;
-            border: 1px solid #bbdefb;
-            border-radius: 10px;
-            padding: 15px;
-            margin: 15px 0;
-            font-style: italic;
-            color: #1565c0;
-        }
-
-        .alert {
-            padding: 12px 15px;
-            border-radius: 8px;
-            margin: 10px 0;
-            font-weight: 500;
-        }
-
-        .alert-success {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-
-        .alert-error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-
-        @media (max-width: 768px) {
-            .main-content {
-                grid-template-columns: 1fr;
-                gap: 30px;
-                padding: 20px;
-            }
-            
-            .header h1 {
-                font-size: 2rem;
-            }
-        }
+        * {margin: 0;padding: 0;box-sizing: border-box;}
+        body {font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);min-height: 100vh;padding: 20px;}
+        .container {max-width: 1200px;margin: 0 auto;background: white;border-radius: 20px;box-shadow: 0 20px 40px rgba(0,0,0,0.1);overflow: hidden;}
+        .header {background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);color: white;text-align: center;padding: 30px;}
+        .header h1 {font-size: 2.5rem;margin-bottom: 10px;}
+        .header p {font-size: 1.1rem;opacity: 0.9;}
+        .main-content {display: grid;grid-template-columns: 1fr 1fr;gap: 40px;padding: 40px;}
+        .settings-panel {display: flex;flex-direction: column;gap: 25px;}
+        .settings-panel h2 {color: #333;font-size: 1.8rem;margin-bottom: 10px;}
+        .form-group {display: flex;flex-direction: column;gap: 8px;}
+        .form-group label {font-weight: 600;color: #555;font-size: 0.95rem;}
+        .form-group select,.form-group input {padding: 12px 15px;border: 2px solid #e1e5e9;border-radius: 10px;font-size: 1rem;transition: all 0.3s ease;}
+        .form-group select:focus,.form-group input:focus {outline: none;border-color: #667eea;box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);}
+        .slider-group {display: flex;flex-direction: column;gap: 8px;}
+        .slider-container {display: flex;align-items: center;gap: 15px;}
+        .slider {flex: 1;height: 6px;border-radius: 3px;background: #e1e5e9;outline: none;-webkit-appearance: none;}
+        .slider::-webkit-slider-thumb {-webkit-appearance: none;appearance: none;width: 20px;height: 20px;border-radius: 50%;background: #667eea;cursor: pointer;}
+        .slider::-moz-range-thumb {width: 20px;height: 20px;border-radius: 50%;background: #667eea;cursor: pointer;border: none;}
+        .slider-value {min-width: 40px;text-align: center;font-weight: 600;color: #667eea;}
+        .button {padding: 15px 25px;border: none;border-radius: 12px;font-size: 1rem;font-weight: 600;cursor: pointer;transition: all 0.3s ease;display: flex;align-items: center;justify-content: center;gap: 8px;}
+        .button-primary {background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);color: white;}
+        .button-primary:hover {transform: translateY(-2px);box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);}
+        .button-secondary {background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);color: #333;}
+        .button-secondary:hover {transform: translateY(-2px);box-shadow: 0 10px 20px rgba(168, 237, 234, 0.3);}
+        .button-success {background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);color: white;}
+        .button-success:hover {transform: translateY(-2px);box-shadow: 0 10px 20px rgba(79, 172, 254, 0.3);}
+        .preview-panel {display: flex;flex-direction: column;align-items: center;gap: 20px;}
+        .preview-panel h2 {color: #333;font-size: 1.8rem;}
+        .preview-container {width: 100%;max-width: 400px;aspect-ratio: 1;background: #f8f9fa;border-radius: 15px;display: flex;align-items: center;justify-content: center;border: 2px dashed #e1e5e9;position: relative;overflow: hidden;}
+        .preview-image {width: 100%;height: 100%;object-fit: cover;border-radius: 13px;}
+        .preview-placeholder {text-align: center;color: #999;font-size: 1.1rem;}
+        .fact-display {background: #e3f2fd;border: 1px solid #bbdefb;border-radius: 10px;padding: 15px;margin: 15px 0;font-style: italic;color: #1565c0;}
+        .alert {padding: 12px 15px;border-radius: 8px;margin: 10px 0;font-weight: 500;}
+        .alert-success {background: #d4edda;color: #155724;border: 1px solid #c3e6cb;}
+        .alert-error {background: #f8d7da;color: #721c24;border: 1px solid #f5c6cb;}
+        @media (max-width: 768px) {.main-content {grid-template-columns: 1fr;gap: 30px;padding: 20px;}.header h1 {font-size: 2rem;}}
     </style>
 </head>
 <body>
@@ -269,11 +51,11 @@
             <h1>🎨 Instagram Content Generator</h1>
             <p>Create engaging Instagram posts with AI-generated facts and professional templates</p>
         </div>
-        
         <div class="main-content">
             <div class="settings-panel">
                 <h2>Content Settings</h2>
-                
+                <!-- Fact Display Area (single instance) -->
+                <div id="factDisplay" class="fact-display" style="margin-bottom: 1em; display: none;"></div>
                 <div class="form-group">
                     <label for="topic">Content Topic</label>
                     <select id="topic">
@@ -282,12 +64,10 @@
                         <option value="yachts">Yachts & Boating</option>
                     </select>
                 </div>
-                
                 <div class="form-group">
                     <label for="brand">Brand Name (Optional)</label>
                     <input type="text" id="brand" placeholder="Enter your brand name" value="FACTS">
                 </div>
-
                 <div class="form-group">
                     <label>Text Size</label>
                     <div class="slider-container">
@@ -295,7 +75,6 @@
                         <span class="slider-value" id="textSizeValue">64</span>
                     </div>
                 </div>
-
                 <div class="form-group">
                     <label>Text Position X</label>
                     <div class="slider-container">
@@ -303,7 +82,6 @@
                         <span class="slider-value" id="textXValue">50%</span>
                     </div>
                 </div>
-
                 <div class="form-group">
                     <label>Text Position Y</label>
                     <div class="slider-container">
@@ -311,7 +89,6 @@
                         <span class="slider-value" id="textYValue">75%</span>
                     </div>
                 </div>
-
                 <div class="form-group">
                     <label>Brand Size</label>
                     <div class="slider-container">
@@ -319,36 +96,18 @@
                         <span class="slider-value" id="brandSizeValue">24</span>
                     </div>
                 </div>
-                
-                <button class="button button-primary" onclick="generateFact()">
-                    🎲 Generate Random Fact
-                </button>
-                
-                <div id="factDisplay" class="fact-display" style="display: none;"></div>
-                
-                <button class="button button-secondary" onclick="createPost()">
-                    🎨 Create Instagram Post
-                </button>
-                
-                <button id="downloadBtn" class="button button-success" onclick="downloadImage()" style="display: none;">
-                    📥 Download Image
-                </button>
+                <button class="button button-primary" onclick="generateFact()">🎲 Generate Random Fact</button>
+                <button class="button button-secondary" onclick="createPost()">🎨 Create Instagram Post</button>
+                <button id="downloadBtn" class="button button-success" onclick="downloadImage()" style="display: none;">📥 Download Image</button>
             </div>
-            
             <div class="preview-panel">
                 <h2>Preview</h2>
                 <div class="preview-container">
-                    <div id="previewArea" class="preview-placeholder">
-    📸 Your generated post will appear here
-    <br>
-    <small>Select a topic and generate a fact to get started</small>
-</div>
                     <img id="previewImage" class="preview-image" style="display: none;" alt="Generated Instagram Post">
                 </div>
             </div>
         </div>
     </div>
-
     <script>
         let currentFact = '';
         let currentImagePath = '';
@@ -357,79 +116,64 @@
         document.getElementById('textSize').addEventListener('input', function() {
             document.getElementById('textSizeValue').textContent = this.value;
         });
-
         document.getElementById('textX').addEventListener('input', function() {
             document.getElementById('textXValue').textContent = this.value + '%';
         });
-
         document.getElementById('textY').addEventListener('input', function() {
             document.getElementById('textYValue').textContent = this.value + '%';
         });
-
         document.getElementById('brandSize').addEventListener('input', function() {
             document.getElementById('brandSizeValue').textContent = this.value;
         });
 
         function showAlert(message, type = 'success') {
             const existingAlert = document.querySelector('.alert');
-            if (existingAlert) {
-                existingAlert.remove();
-            }
-            
+            if (existingAlert) existingAlert.remove();
             const alert = document.createElement('div');
             alert.className = `alert alert-${type}`;
             alert.textContent = message;
-            
             const settingsPanel = document.querySelector('.settings-panel');
             settingsPanel.insertBefore(alert, settingsPanel.firstChild);
-            
-            setTimeout(() => {
-                alert.remove();
-            }, 5000);
+            setTimeout(() => { alert.remove(); }, 5000);
         }
 
         async function generateFact() {
-    const selectedTopic = document.getElementById('topic').value;
-    fetch('/api/generate-fact', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ topic: selectedTopic })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            document.getElementById('factDisplay').textContent = data.fact;
-            document.getElementById('factDisplay').style.display = 'block';
-            currentFact = data.fact;
-        } else {
-            showAlert('Error generating fact: ' + data.error, 'error');
+            const selectedTopic = document.getElementById('topic').value;
+            fetch('/api/generate-fact', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ topic: selectedTopic })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('factDisplay').textContent = data.fact;
+                    document.getElementById('factDisplay').style.display = 'block';
+                    currentFact = data.fact;
+                } else {
+                    showAlert('Error generating fact: ' + data.error, 'error');
+                }
+            })
+            .catch(error => {
+                showAlert('Network error: ' + error, 'error');
+            });
         }
-    })
-    .catch(error => {
-        showAlert('Network error: ' + error, 'error');
-    });
-}
-
 
         async function createPost() {
             if (!currentFact) {
                 showAlert('Please generate a fact first!', 'error');
                 return;
             }
-            
             const topic = document.getElementById('topic').value;
             const brand = document.getElementById('brand').value || 'FACTS';
             const textSize = parseInt(document.getElementById('textSize').value);
             const textX = parseInt(document.getElementById('textX').value);
             const textY = parseInt(document.getElementById('textY').value);
             const brandSize = parseInt(document.getElementById('brandSize').value);
-            
             try {
                 const response = await fetch('/api/create-post', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
+                    headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({ 
                         topic: topic,
                         fact: currentFact,
@@ -440,22 +184,13 @@
                         brandSize: brandSize
                     })
                 });
-                
                 const data = await response.json();
-             if (data.success) {
-    // No need for currentImagePath any more
-    const previewImage = document.getElementById('previewImage');
-    const placeholder = document.querySelector('.preview-placeholder');
-    
-    // Set image source to base64 data directly
-    previewImage.src = data.background_image_base64;
-    previewImage.style.display = 'block';
-    placeholder.style.display = 'none';
-    
-    document.getElementById('downloadBtn').style.display = 'block';
-    showAlert('Instagram post created successfully!');
-}
-
+                if (data.success) {
+                    const previewImage = document.getElementById('previewImage');
+                    previewImage.src = data.background_image_base64;
+                    previewImage.style.display = 'block';
+                    document.getElementById('downloadBtn').style.display = 'block';
+                    showAlert('Instagram post created successfully!');
                 } else {
                     showAlert('Error creating post: ' + data.error, 'error');
                 }
@@ -475,27 +210,5 @@
             }
         }
     </script>
-<script>
-window.generateFact = async function generateFact() {
-    // Example fetch call (customize as needed for your API)
-    const topic = document.getElementById('topicDropdown')?.value || 'general';
-    try {
-        const response = await fetch('/api/generate-fact', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ topic })
-        });
-        const data = await response.json();
-        if (data.success) {
-            document.getElementById('previewArea').innerText = data.fact;
-        } else {
-            alert('Error: ' + (data.error || 'Unknown error'));
-        }
-    } catch (err) {
-        alert('Request failed: ' + err);
-    }
-}
-</script>
-
 </body>
 </html>
