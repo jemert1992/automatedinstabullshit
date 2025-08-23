@@ -54,7 +54,9 @@ def generate_fact():
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
 
-def create_insta_post_img(background_path, fact, brand_name, text_size=84, text_x=50, text_y=10, brand_size=36):
+def create_insta_post_img(
+    background_path, fact, brand_name, text_size=84, text_x=50, text_y=10, brand_size=36
+):
     img = Image.open(background_path).convert("RGBA").resize((1080, 1080))
     draw = ImageDraw.Draw(img)
 
@@ -68,12 +70,13 @@ def create_insta_post_img(background_path, fact, brand_name, text_size=84, text_
     fact = str(fact).upper()
     brand_name = str(brand_name).upper()
 
-    # Compute size for FACT text
+    # --- FACT TEXT ---
     fact_bbox = draw.textbbox((0, 0), fact, font=fact_font)  # (left, upper, right, lower)
-    fact_w = fact_bbox[2] - fact_bbox
-    fact_h = fact_bbox[2] - fact_bbox[3]
+    fact_left, fact_top, fact_right, fact_bottom = fact_bbox
+    fact_w = fact_right - fact_left
+    fact_h = fact_bottom - fact_top
     fx = int((1080 - fact_w) / 2)
-
+    # Y: if percent or px
     if isinstance(text_y, (float, int)):
         if isinstance(text_y, float) and text_y <= 1:
             fy = int(1080 * text_y)
@@ -84,16 +87,17 @@ def create_insta_post_img(background_path, fact, brand_name, text_size=84, text_
     else:
         fy = 10
 
-    # Draw shadow and text
     draw.text((fx + 3, fy + 3), fact, font=fact_font, fill="black")
     draw.text((fx, fy), fact, font=fact_font, fill="white")
 
-    # Compute size for BRAND text
+    # --- BRAND TEXT ---
     brand_bbox = draw.textbbox((0, 0), brand_name, font=brand_font)
-    brand_w = brand_bbox[2] - brand_bbox
-    brand_h = brand_bbox[2] - brand_bbox[3]
+    brand_left, brand_top, brand_right, brand_bottom = brand_bbox
+    brand_w = brand_right - brand_left
+    brand_h = brand_bottom - brand_top
     bx = 1080 - brand_w - 40
     by = 1080 - brand_h - 40
+
     draw.text((bx + 2, by + 2), brand_name, font=brand_font, fill="black")
     draw.text((bx, by), brand_name, font=brand_font, fill="white")
 
