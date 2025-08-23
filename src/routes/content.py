@@ -60,16 +60,18 @@ def wrap_text(text, font, draw, max_width):
     lines = []
     while words:
         line = ''
-        while words:
-            test_line = f"{line} {words[0]}".strip()
+        i = 0
+        while i < len(words):
+            test_line = (line + ' ' + words[i]).strip() if line else words[i]
             bbox = draw.textbbox((0, 0), test_line, font=font)
             w = bbox[2] - bbox
             if w > max_width and line:
                 break
             else:
                 line = test_line
-                words.pop(0)
+                i += 1
         lines.append(line)
+        words = words[i:]
     return lines
 
 def create_insta_post_img(
@@ -93,7 +95,9 @@ def create_insta_post_img(
     # Wrap headline and calculate sizes
     max_text_width = int(1080 * 0.92)
     fact_lines = wrap_text(fact, fact_font, draw, max_text_width)
-    line_height = fact_font.getbbox("A")[3] - fact_font.getbbox("A")[3]
+    # Calculate single line height
+    bbox_A = fact_font.getbbox("A")
+    line_height = bbox_A[3] - bbox_A[2]
     band_height = line_height * len(fact_lines) + 48
     band_y0 = 24
     band_y1 = band_y0 + band_height
@@ -109,18 +113,14 @@ def create_insta_post_img(
     for line in fact_lines:
         bbox = draw.textbbox((0, 0), line, font=fact_font)
         w = bbox[2] - bbox
-        draw.text(
-            ((1080 - w) // 2 + 2, top + 2), line, font=fact_font, fill="black"
-        )
-        draw.text(
-            ((1080 - w) // 2, top), line, font=fact_font, fill="white"
-        )
+        draw.text(((1080 - w) // 2 + 2, top + 2), line, font=fact_font, fill="black")
+        draw.text(((1080 - w) // 2, top), line, font=fact_font, fill="white")
         top += line_height
 
     # Brand mark at bottom center
     brand_bbox = draw.textbbox((0, 0), brand_name, font=brand_font)
     brand_w = brand_bbox[2] - brand_bbox
-    brand_h = brand_bbox[4] - brand_bbox[3]
+    brand_h = brand_bbox - brand_bbox[2]
     bx = (1080 - brand_w) // 2
     by = 1080 - brand_h - 40
     draw.text((bx + 2, by + 2), brand_name, font=brand_font, fill="black")
