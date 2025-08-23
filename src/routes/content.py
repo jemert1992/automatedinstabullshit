@@ -1,6 +1,5 @@
 import os
 import random
-import time
 import base64
 import io
 from flask import Blueprint, request, jsonify, current_app as app
@@ -71,10 +70,10 @@ def create_insta_post_img(background_path, fact, brand_name, text_size=84, text_
 
     # Compute size for FACT text
     fact_bbox = draw.textbbox((0, 0), fact, font=fact_font)  # (left, upper, right, lower)
-    fact_w = fact_bbox[2] - fact_bbox  # Always int
-    fact_h = fact_bbox[3] - fact_bbox[4]  # Always int
+    fact_w = fact_bbox[2] - fact_bbox
+    fact_h = fact_bbox[2] - fact_bbox[3]
     fx = int((1080 - fact_w) / 2)
-    # Process y as percent or absolute
+
     if isinstance(text_y, (float, int)):
         if isinstance(text_y, float) and text_y <= 1:
             fy = int(1080 * text_y)
@@ -85,14 +84,14 @@ def create_insta_post_img(background_path, fact, brand_name, text_size=84, text_
     else:
         fy = 10
 
-    # Shadow and text
+    # Draw shadow and text
     draw.text((fx + 3, fy + 3), fact, font=fact_font, fill="black")
     draw.text((fx, fy), fact, font=fact_font, fill="white")
 
     # Compute size for BRAND text
     brand_bbox = draw.textbbox((0, 0), brand_name, font=brand_font)
-    brand_w = brand_bbox[2] - brand_bbox  # Always int
-    brand_h = brand_bbox[3] - brand_bbox[4]  # Always int
+    brand_w = brand_bbox[2] - brand_bbox
+    brand_h = brand_bbox[2] - brand_bbox[3]
     bx = 1080 - brand_w - 40
     by = 1080 - brand_h - 40
     draw.text((bx + 2, by + 2), brand_name, font=brand_font, fill="black")
@@ -102,7 +101,6 @@ def create_insta_post_img(background_path, fact, brand_name, text_size=84, text_
     img.save(buffer, format="PNG")
     img_str = base64.b64encode(buffer.getvalue()).decode()
     return f"data:image/png;base64,{img_str}"
-
 
 @content_bp.route('/create-post', methods=['POST'])
 def create_post():
