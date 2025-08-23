@@ -74,7 +74,7 @@ def create_insta_post_img(background_path, fact, brand_name, text_size=84, text_
     # Font paths (ensure these exist; fallback to default if not)
     font_path = os.path.join("src", "static", "Arial-Bold.ttf")
     if not os.path.exists(font_path):
-        font_path = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf" # fallback for common servers
+        font_path = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"  # fallback for common servers
 
     fact_font = ImageFont.truetype(font_path, text_size)
     brand_font = ImageFont.truetype(font_path, brand_size)
@@ -83,19 +83,21 @@ def create_insta_post_img(background_path, fact, brand_name, text_size=84, text_
     brand_name = brand_name.upper()
 
     # Main fact centered horizontally, near the top by text_y (%)
-    fact_w, fact_h = draw.textsize(fact, font=fact_font)
+    fact_bbox = draw.textbbox((0, 0), fact, font=fact_font)
+    fact_w = fact_bbox[2] - fact_bbox
+    fact_h = fact_bbox[2] - fact_bbox[3]
     fx = int((1080 - fact_w) / 2) if isinstance(text_x, (int, float)) else int(text_x)
-    fy = int(1080 * (text_y/100)) if isinstance(text_y, (int, float)) and text_y <= 1 else int(text_y) if text_y > 1 else int(1080 * text_y)
-    # Shadow
-    draw.text((fx+3, fy+3), fact, font=fact_font, fill="black")
-    # Main text
+    fy = int(1080 * (text_y / 100)) if isinstance(text_y, (int, float)) and text_y <= 1 else int(text_y) if text_y > 1 else int(1080 * text_y)
+    draw.text((fx + 3, fy + 3), fact, font=fact_font, fill="black")
     draw.text((fx, fy), fact, font=fact_font, fill="white")
 
     # Brand name bottom right
-    brand_w, brand_h = draw.textsize(brand_name, font=brand_font)
+    brand_bbox = draw.textbbox((0, 0), brand_name, font=brand_font)
+    brand_w = brand_bbox[2] - brand_bbox
+    brand_h = brand_bbox[2] - brand_bbox[3]
     bx = 1080 - brand_w - 40
     by = 1080 - brand_h - 40
-    draw.text((bx+2, by+2), brand_name, font=brand_font, fill="black")
+    draw.text((bx + 2, by + 2), brand_name, font=brand_font, fill="black")
     draw.text((bx, by), brand_name, font=brand_font, fill="white")
 
     buffer = io.BytesIO()
