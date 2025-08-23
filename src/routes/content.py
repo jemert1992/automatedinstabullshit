@@ -9,7 +9,6 @@ import openai
 
 content_bp = Blueprint('content', __name__)
 
-# Template categories with their corresponding background images
 TEMPLATES = {
     'real_estate': [
         'real_estate_template_1.png',
@@ -28,21 +27,15 @@ TEMPLATES = {
 
 @content_bp.route('/generate-fact', methods=['POST'])
 def generate_fact():
-    """Generate a fact based on the provided topic"""
     try:
         data = request.get_json()
         topic = data.get('topic', 'general')
-
-        # Create topic-specific prompts
         prompts = {
-            'real_estate': f"Generate a short, impactful headline about real estate or property that would grab attention on social media. Make it bold, surprising, and under 15 words. Format it like a news headline or viral fact. Examples: 'WORLD'S MOST EXPENSIVE HOME COSTS MORE THAN SOME COUNTRIES' GDP' or 'TOKYO APARTMENTS SELL FOR LESS THAN A CAR'",
-            'yachts': f"Generate a short, impactful headline about yachts, boats, or maritime luxury that would grab attention on social media. Make it bold, surprising, and under 15 words. Format it like a news headline or viral fact. Examples: 'WORLD'S LARGEST YACHT HAS ITS OWN SUBMARINE GARAGE' or 'BILLIONAIRE'S YACHT COSTS $1 MILLION PER WEEK TO MAINTAIN'",
-            'general': f"Generate a short, impactful headline about science, history, or amazing facts that would grab attention on social media. Make it bold, surprising, and under 15 words. Format it like a news headline or viral fact. Examples: 'OCTOPUSES HAVE THREE HEARTS AND BLUE BLOOD' or 'HONEY NEVER EXPIRES - 3000 YEAR OLD HONEY IS STILL EDIBLE'"
+            'real_estate': "Generate a short, impactful headline about real estate or property that would grab attention on social media. Make it bold, surprising, and under 15 words. Format it like a news headline or viral fact. Examples: 'WORLD'S MOST EXPENSIVE HOME COSTS MORE THAN SOME COUNTRIES' GDP' or 'TOKYO APARTMENTS SELL FOR LESS THAN A CAR'",
+            'yachts': "Generate a short, impactful headline about yachts, boats, or maritime luxury that would grab attention on social media. Make it bold, surprising, and under 15 words. Format it like a news headline or viral fact. Examples: 'WORLD'S LARGEST YACHT HAS ITS OWN SUBMARINE GARAGE' or 'BILLIONAIRE'S YACHT COSTS $1 MILLION PER WEEK TO MAINTAIN'",
+            'general': "Generate a short, impactful headline about science, history, or amazing facts that would grab attention on social media. Make it bold, surprising, and under 15 words. Format it like a news headline or viral fact. Examples: 'OCTOPUSES HAVE THREE HEARTS AND BLUE BLOOD' or 'HONEY NEVER EXPIRES - 3000 YEAR OLD HONEY IS STILL EDIBLE'"
         }
-
         prompt = prompts.get(topic, prompts['general'])
-
-        # Generate content using OpenAI
         client = openai.OpenAI()
         response = client.chat.completions.create(
             model="gpt-4o-mini",
@@ -54,27 +47,21 @@ def generate_fact():
             temperature=0.8
         )
         fact = response.choices[0].message.content.strip()
-
         return jsonify({
             'success': True,
             'fact': fact,
             'topic': topic
         })
-
     except Exception as e:
-        return jsonify({
-            'success': False,
-            'error': str(e)
-        }), 500
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 def create_insta_post_img(background_path, fact, brand_name, text_size=84, text_x=50, text_y=10, brand_size=36):
     img = Image.open(background_path).convert("RGBA").resize((1080, 1080))
     draw = ImageDraw.Draw(img)
 
-    # Font paths (ensure these exist; fallback to default if not)
     font_path = os.path.join("src", "static", "Arial-Bold.ttf")
     if not os.path.exists(font_path):
-        font_path = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"  # fallback for common servers
+        font_path = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
 
     fact_font = ImageFont.truetype(font_path, text_size)
     brand_font = ImageFont.truetype(font_path, brand_size)
@@ -82,21 +69,29 @@ def create_insta_post_img(background_path, fact, brand_name, text_size=84, text_
     fact = fact.upper()
     brand_name = brand_name.upper()
 
-    # Main fact centered horizontally, near the top by text_y (%)
+    # FACT text
     fact_bbox = draw.textbbox((0, 0), fact, font=fact_font)
-    fact_w = fact_bbox[2] - fact_bbox
-    fact_h = fact_bbox[2] - fact_bbox[3]
-    fx = int((1080 - fact_w) / 2) if isinstance(text_x, (int, float)) else int(text_x)
-    fy = int(1080 * (text_y / 100)) if isinstance(text_y, (int, float)) and text_y <= 1 else int(text_y) if text_y > 1 else int(1080 * text_y)
+    fact_w = int(fact_bbox[2]) - int(fact_bbox)  # width
+    fact_h = int(fact_bbox[2]) - int(fact_bbox[3])  # height
+    fx = int((1080 - fact_w) / 2)
+    # Y position: if input is %, convert; else treat as px
+    if isinstance(text_y, float) and text_y <= 1:  # e.g., 0.1 for 10%
+        fy = int(1080 * text_y)
+    elif isinstance(text_y, int) and text_y < 100:  # treat as percent if below 100
+        fy = int(1080 * (text_y / 100))
+    else:
+        fy = int(text_y)
+    # Shadow
     draw.text((fx + 3, fy + 3), fact, font=fact_font, fill="black")
     draw.text((fx, fy), fact, font=fact_font, fill="white")
 
-    # Brand name bottom right
+    # BRAND text
     brand_bbox = draw.textbbox((0, 0), brand_name, font=brand_font)
-    brand_w = brand_bbox[2] - brand_bbox
-    brand_h = brand_bbox[2] - brand_bbox[3]
+    brand_w = int(brand_bbox[2]) - int(brand_bbox)
+    brand_h = int(brand_bbox[2]) - int(brand_bbox[3])
     bx = 1080 - brand_w - 40
     by = 1080 - brand_h - 40
+    # Shadow
     draw.text((bx + 2, by + 2), brand_name, font=brand_font, fill="black")
     draw.text((bx, by), brand_name, font=brand_font, fill="white")
 
@@ -107,29 +102,26 @@ def create_insta_post_img(background_path, fact, brand_name, text_size=84, text_
 
 @content_bp.route('/create-post', methods=['POST'])
 def create_post():
-    """Create an Instagram post with background image and return base64-encoded PNG"""
     try:
         data = request.get_json()
         topic = data.get('topic', 'general')
         fact = data.get('fact', '')
         brand_name = data.get('brand', 'FACTS')
         text_size = int(data.get('textSize', 84))
-        text_x = int(data.get('textX', 50))
-        text_y = int(data.get('textY', 10))
+        text_x = data.get('textX', 50)
+        text_y = data.get('textY', 10)
+        if isinstance(text_x, str):
+            text_x = float(text_x) if '.' in text_x else int(text_x)
+        if isinstance(text_y, str):
+            text_y = float(text_y) if '.' in text_y else int(text_y)
         brand_size = int(data.get('brandSize', 36))
 
         if not fact:
-            return jsonify({
-                'success': False,
-                'error': 'No fact provided'
-            }), 400
+            return jsonify({'success': False, 'error': 'No fact provided'}), 400
 
-        # Select a random template based on topic
         templates = TEMPLATES.get(topic, TEMPLATES['general'])
         template_filename = random.choice(templates)
         template_path = os.path.join(app.static_folder, template_filename)
-
-        # Create the post image with overlays baked in
         base64_image = create_insta_post_img(
             template_path, fact, brand_name, text_size, text_x, text_y, brand_size
         )
@@ -139,17 +131,9 @@ def create_post():
             'background_image_base64': base64_image,
             'image_dimensions': {'width': 1080, 'height': 1080}
         })
-
     except Exception as e:
-        return jsonify({
-            'success': False,
-            'error': str(e)
-        }), 500
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 @content_bp.route('/topics', methods=['GET'])
 def get_topics():
-    """Get available topic categories"""
-    return jsonify({
-        'success': True,
-        'topics': list(TEMPLATES.keys())
-    })
+    return jsonify({'success': True, 'topics': list(TEMPLATES.keys())})
